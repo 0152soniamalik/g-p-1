@@ -1,0 +1,49 @@
+name: HTML and JavaScript Check
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Check if HTML file exists
+        run: |
+          if find . -name "*.html" | grep -q .; then
+            echo "✅ HTML file found."
+          else
+            echo "❌ No HTML file found."
+            exit 1
+          fi
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install ESLint
+        run: |
+          npm init -y
+          npm install eslint
+
+      - name: Create ESLint Configuration
+        run: |
+          echo '{
+            "env": {
+              "browser": true,
+              "es2021": true
+            },
+            "extends": "eslint:recommended"
+          }' > .eslintrc.json
+
+      - name: Check JavaScript Syntax
+        run: npx eslint .
